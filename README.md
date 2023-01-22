@@ -1,70 +1,103 @@
-# Getting Started with Create React App
+import React, { useState } from 'react';
+import Web3 from 'web3';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
 
-In the project directory, you can run:
+function App() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [ethBalance, setEthBalance] = useState("");
 
-### `npm start`
+  //const getData = () => {
+  //const options = {method: 'GET', headers: {accept: 'application/json'}};
+  
+  //fetch('api', options)
+    //.then(response => response.json())
+    //.then(response => console.log(response))
+    //.catch(err => console.error(err));
+  
+  //}
+  
+  
+  const detectCurrentProvider = () => {
+    let provider;
+    if (window.ethereum) {
+      provider = window.ethereum;
+    } else if (window.web3) {
+      provider = window.web3.currentProvider;
+    } else {
+      console.log("Non-ethereum browser detected. You should install Metamask");
+    }
+    return provider;
+  };
+  
+  const onConnect = async() => {
+    try {
+      const currentProvider = detectCurrentProvider();
+      if(currentProvider) {
+        await currentProvider.request({method: 'eth_requestAccounts'});
+        const web3 = new Web3(currentProvider);
+        const userAccount  =await web3.eth.getAccounts();
+        const account = userAccount[0];
+        let ethBalance = await web3.eth.getBalance(account);
+        setEthBalance(ethBalance);
+        setIsConnected(true);
+      }
+    } catch(err) {
+      console.log(err);
+    }
+  }
+  
+  const onDisconnect = () => {
+    setIsConnected(false);
+  }
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    
+  return (
+    <div className="app">
+      <center>
+      <div className="app-header">
+        <br></br><br></br>
+      </div>
+      <div className="app-wrapper">
+        {!isConnected && (
+          <div>
+            <button className="app-button" onClick={onConnect}>
+            Connect
+            </button>
+          </div>
+        )}
+      </div>
+      {isConnected && (
+        <div className="app-wrapper">
+          <div className="app-details">
+            <div id="game"></div>
+            <div className="app-balance">
+              <span><h2>Balance: </h2></span>
+              {ethBalance}
+            </div>
+          </div>
+          <div>
+            <button className="app-button" onClick={onDisconnect}>
+            Disconnect
+            </button>
+          </div>
+          <div>
+          </div><br></br>
+          <div>
+          <a href="https://etherscan.io/"><button className="app-button">Mint contract</button></a><br></br>
+          <a href="https://opensea.io/spacejetsNFT"><button className="app-button">Opensea</button></a><br></br><br></br><br></br><br></br>
+            <h3>Escape the matrix, coming when sold out...</h3>
+            Example below
+          </div>
+          <div>
+          <canvas></canvas>
+          <script type="module" src="game.js"></script>
+          </div>
+          </div>
+      )}</center>
+    </div>
+  );
+}
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default App;
